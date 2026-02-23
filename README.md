@@ -181,6 +181,37 @@ Sender project folder similarly contains:
 - shared crypto + coap helpers
 
 ---
+## Run & Test ✅
+
+### 1) Flash both boards
+- Flash **Gateway firmware** to the Gateway PineCone
+- Flash **Sender firmware** to the Sender PineCone
+
+### 2) Power-on order (important)
+1. Power ON **Gateway** first  
+   - Wait until it connects to Wi-Fi and prints:
+     - `Listening on UDP port 5683`
+   - OLED should show something like:
+     - `Waiting...`
+2. Power ON **Sender**
+   - Sender will connect to Wi-Fi, discover the gateway via broadcast, fetch PK, then send the protected payload.
+
+### 3) Expected runtime behavior
+**Gateway**
+- Replies to PK request (`/pqkem-pk`)
+- Receives encrypted packet (`/pqkem-data`)
+- Decrypts it and shows plaintext on OLED
+- Blinks LED on success
+
+**Sender**
+- Broadcast discovery → receives gateway IP
+- Encapsulates KEM
+- Derives AES key via HKDF
+- Encrypts plaintext via AES-CCM
+- Sends packet to the gateway
+
+### 4) Add demo video (for GitHub)
+Create a folder:
 
 ## Build & flash
 
