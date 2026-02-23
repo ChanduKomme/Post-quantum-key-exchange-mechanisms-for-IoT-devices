@@ -1,218 +1,95 @@
-# Post-quantum-key-exchange-mechanisms-for-IOT-devices 🔐📡
+# Post-Quantum Key Exchange for IoT (BL602 Implementation) 🔐
 
-A lightweight, end-to-end secure messaging demo built on the **PineCone (Bouffalo Lab BL602)** platform.  
-This project shows how two IoT nodes can exchange a message securely using:
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/Platform-Bouffalo_Lab_BL602-blue)](https://www.bouffalolab.com/)
+[![Crypto](https://img.shields.io/badge/Crypto-ML--KEM--512_%2B_AES--CCM-green)](https://csrc.nist.gov/projects/post-quantum-cryptography)
 
-- **ML-KEM (Post-Quantum Key Encapsulation)** for key exchange (PQ-safe)
-- **HKDF-SHA256** for key derivation
-- **AES-128-CCM** for authenticated encryption (confidentiality + integrity)
-- **CoAP over UDP** for transport (simple + IoT-friendly)
-- **Replay detection (nonce cache)** and **tamper detection (auth fail monitoring)**
-- **OLED (SSD1306)** + **LED** status indicators on the gateway
+> **A Proof-of-Concept for integrating NIST-standardized Post-Quantum Cryptography (ML-KEM/Kyber) into resource-constrained IoT devices.**
 
----
+## 📖 Abstract
+[cite_start]Innovations such as post-quantum cryptography have created new needs for secure connections between devices that will be part of a long-term ecosystem[cite: 5]. [cite_start]Currently, IoT devices rely on asymmetric cryptography that may be compromised by future quantum computers[cite: 6]. 
 
-## Table of Contents
-- [What this project does](#what-this-project-does)
-- [System roles](#system-roles)
-- [How the protocol works](#how-the-protocol-works)
-- [Security features](#security-features)
-- [Hardware requirements](#hardware-requirements)
-- [Wiring](#wiring)
-- [Project structure](#project-structure)
-- [Build & flash](#build--flash)
-- [Run & test](#run--test)
-- [Understanding the logs](#understanding-the-logs)
-- [Configuration notes](#configuration-notes)
-- [Troubleshooting](#troubleshooting)
-- [Limitations](#limitations)
-- [References](#references)
+[cite_start]This project implements a **Post-Quantum Key Agreement Protocol** for the IoT[cite: 8]. [cite_start]Using **Pine Cone BL602** microcontrollers, we demonstrate a secure connection where a Sender and Gateway establish a shared secret using **ML-KEM-512 (Kyber)** and protect data using **AES-128-CCM** over **CoAP/UDP**[cite: 9, 10, 11].
 
----
+## 🏗️ System Architecture
 
-## What this project does
+[cite_start]The system utilizes a modular architecture enabling independent operation of transport, key establishment, and data security functions[cite: 33].
 
-This project demonstrates a **secure message transfer** from a **Sender PineCone** to a **Gateway PineCone**.
+### 1. Gateway Node (Server)
+* [cite_start]**Hardware:** Pine Cone BL602 with an OLED display (I2C)[cite: 88, 118].
+* [cite_start]**Role:** Maintains the long-term ML-KEM-512 key pair in internal flash memory[cite: 13].
+* [cite_start]**Function:** Listens for CoAP requests, performs KEM decapsulation, derives the session key via HKDF, and decrypts the AES-CCM payload[cite: 155].
+* [cite_start]**Output:** Displays decrypted plaintext on the OLED screen and flashes an LED upon successful authentication[cite: 93, 118].
 
-The sender:
-1. Discovers the gateway on the LAN
-2. Requests the gateway’s ML-KEM public key via CoAP
-3. Performs ML-KEM encapsulation to create a shared secret and ciphertext
-4. Derives an AES key via HKDF
-5. Encrypts a plaintext string using AES-CCM
-6. Sends the encrypted payload to the gateway via CoAP/UDP
+### 2. Sender Node (Client)
+* [cite_start]**Hardware:** Pine Cone BL602[cite: 9].
+* **Role:** Initiates secure communication.
+* [cite_start]**Function:** Retrieves the Gateway's public key via CoAP, encapsulates a shared secret (ML-KEM), derives the AES key, and transmits encrypted data[cite: 13, 136, 138].
 
-The gateway:
-1. Receives the sender request and returns its ML-KEM public key
-2. Receives the encrypted payload packet
-3. Decapsulates the KEM ciphertext to recover the shared secret
-4. Re-derives AES key via HKDF
-5. Authenticates and decrypts via AES-CCM
-6. Displays plaintext on **SSD1306 OLED** and blinks LED on success  
-7. Detects replay/tamper events and signals via OLED + LED + logs
+### 3. Sniffer Node (Passive Monitor)
+* [cite_start]**Hardware:** Pine Cone BL602 (Minimal configuration)[cite: 122].
+* **Role:** Network Traffic Analysis and Replay Detection.
+* [cite_start]**Function:** Operates in Wi-Fi Monitor Mode to capture IEEE 802.11 frames and stream them via UART to a host PC[cite: 124, 125].
+* [cite_start]**Analysis:** Allows traffic visualization in Wireshark to verify encryption and detect anomalies[cite: 15, 176].
 
----
+## 🔐 Cryptographic Stack
 
-## System roles
+[cite_start]This project strictly adheres to the following hybrid scheme recommended for IoT constraints[cite: 8, 58]:
 
-### ✅ Sender Node (PineCone)
-- Connects to Wi-Fi (STA mode)
-- Discovers gateway automatically using broadcast (CoAP POST `/pqkem-pk`)
-- Encapsulates using ML-KEM
-- Encrypts message using AES-CCM
-- Sends protected data (CoAP POST `/pqkem-data`)
+1.  **Key Encapsulation Mechanism (KEM):**
+    * [cite_start]**Algorithm:** ML-KEM-512 (Kyber)[cite: 10, 48].
+    * [cite_start]**Level:** NIST Security Level 1 (comparable to AES-128)[cite: 48].
+    * [cite_start]**Parameters:** Ciphertext size 768 bytes, Shared Secret 32 bytes[cite: 49].
+2.  **Key Derivation Function (KDF):**
+    * [cite_start]**Algorithm:** HKDF-SHA-256[cite: 58].
+    * [cite_start]**Input:** Shared Secret (from KEM)[cite: 57].
+    * [cite_start]**Output:** 128-bit Symmetric Key[cite: 58].
+3.  **Authenticated Encryption (AEAD):**
+    * [cite_start]**Algorithm:** AES-128-CCM (Counter with CBC-MAC)[cite: 11, 65].
+    * [cite_start]**Role:** Provides confidentiality and integrity for CoAP payloads[cite: 65].
 
-### ✅ Gateway Node (PineCone)
-- Connects to Wi-Fi (STA mode)
-- Hosts a CoAP listener on UDP port **5683**
-- Stores long-term ML-KEM keypair in internal flash
-- Responds to `/pqkem-pk` requests
-- Processes `/pqkem-data` messages:
-  - KEM decapsulation
-  - HKDF derive
-  - AES-CCM auth+decrypt
-  - OLED display + LED signal
-  - replay/tamper detection logic
+## ⚡ Performance Evaluation
 
----
+Benchmarks were measured on the BL602 (RISC-V) hardware:
 
-## How the protocol works
+| Operation | Time | Notes |
+| :--- | :--- | :--- |
+| **ML-KEM-512 Encapsulation** | ~11-12 ms | [cite_start]Sender Side [cite: 167] |
+| **ML-KEM-512 Decapsulation** | ~11-12 ms | [cite_start]Gateway Side [cite: 167] |
+| **AES-CCM Encrypt/Decrypt** | < 1 ms | [cite_start]Negligible overhead [cite: 168] |
 
-This project uses **two CoAP endpoints** on the gateway.
+[cite_start]**Resource Usage:** Memory usage remains within the board's limits, with ciphertexts stored in static buffers and payloads in RAM[cite: 172, 173].
 
-### 1) Public key request  
-**Sender → Gateway:** `POST /pqkem-pk` (empty payload)  
-**Gateway → Sender:** returns `PK` (ML-KEM public key)
+## 🔌 Hardware & Wiring
 
-The sender uses broadcast for discovery:
-- Destination IP: `255.255.255.255`
-- Port: `5683`
-- The gateway replies from its real IP address
-- The sender then updates the gateway IP and uses it for the data message
+[cite_start]**Board:** 3x Pine Cone BL602 (Bouffalo Lab)[cite: 88].
 
-### 2) Protected data message  
-**Sender → Gateway:** `POST /pqkem-data`  
-Payload contains a compact binary frame:
+| Peripheral | Connection | Role |
+| :--- | :--- | :--- |
+| **Status LED** | GPIO Pin | [cite_start]Blinks on successful decrypt/auth [cite: 93] |
+| **OLED Display** | I2C Interface | [cite_start]Displays decrypted plaintext on Gateway [cite: 118] |
+| **UART** | USB Serial | [cite_start]Debug logging and Sniffer stream [cite: 91, 125] |
 
+## 🚀 Usage Guide
 
+### 1. Firmware Roles
+* [cite_start]**Gateway:** Initialize -> Connect Wi-Fi -> Load Keys -> Start CoAP Server[cite: 140, 154].
+* [cite_start]**Sender:** Initialize -> Connect Wi-Fi -> GET Public Key -> POST Encrypted Data[cite: 158, 159].
+* [cite_start]**Sniffer:** Initialize -> Set Monitor Mode -> Stream to UART[cite: 144, 145].
 
-- `type` = 3 (MSG_DATA)
-- `nonce` = 12 bytes
-- `kem_ct` = ML-KEM ciphertext bytes
-- `ciphertext` = AES-CCM ciphertext of plaintext
-- `tag` = AES-CCM authentication tag (16 bytes)
+### 2. Operational Flow
+1.  [cite_start]**Boot Gateway:** It connects to the network via DHCP and waits for requests[cite: 157].
+2.  [cite_start]**Boot Sender:** It automatically discovers the Gateway and requests the Public Key (`/pqkem-pk`)[cite: 158].
+3.  [cite_start]**Handshake:** Sender encapsulates the key and sends the ciphertext + AES-encrypted payload (`/pqkem-data`)[cite: 159].
+4.  **Verification:**
+    * Gateway decrypts the message.
+    * [cite_start]**OLED** displays the plaintext[cite: 162].
+    * [cite_start]**LED** flashes green[cite: 163].
 
----
+## 📚 References
 
-## Security features
-
-### ✅ Post-Quantum key exchange (ML-KEM)
-- Sender uses gateway public key to encapsulate → gets `(ct, shared_secret)`
-- Gateway decapsulates `(ct, secret_key)` → recovers `shared_secret`
-
-### ✅ Key derivation (HKDF-SHA256)
-Both sides run:
-- `HKDF(shared_secret, info="ML-KEM-AEAD") → AES-128 key`
-
-This prevents using raw shared secret directly and cleanly scopes derived keys.
-
-### ✅ Authenticated encryption (AES-128-CCM)
-AES-CCM provides:
-- Confidentiality (encryption)
-- Integrity (authentication tag)
-
-If ciphertext/tag/nonce is modified → gateway detects it as **AUTH FAIL**.
-
-### ✅ Replay detection (Gateway nonce cache)
-Gateway stores recently seen nonces in a fixed-size cache.
-- If a nonce appears again → **REPLAY DROP**
-- OLED shows replay status and LED blinks
-
-### ✅ Tamper detection (Sender rate check) + Gateway auth monitoring
-- Sender has a simple timing-based “tamper” heuristic (too-fast send triggers flag)
-- Gateway detects tampering reliably by AES-CCM auth failure (tag mismatch)
-
-> Note: AES-CCM authentication failure is the real cryptographic tamper detection mechanism.
-
----
-
-## Hardware requirements
-
-### Mandatory
-- 2 × PineCone BL602 boards
-  - One as **Sender**
-  - One as **Gateway**
-- 1 × Wi-Fi access point/router (same LAN)
-
-### Gateway extras (recommended)
-- SSD1306 OLED display (I2C)
-- External LED + resistor (for GPIO indication)
-
----
-
-## Wiring
-
-### SSD1306 OLED → PineCone (Gateway)
-Typical I2C wiring used in your codebase:
-
-| OLED Pin | PineCone Pin |
-|---------:|--------------|
-| GND      | GND          |
-| VCC      | 3V3          |
-| SCL      | IO4          |
-| SDA      | IO3          |
-
-### LED (Sender or Gateway)
-| LED | PineCone |
-|-----|----------|
-| Anode (+) through resistor | GPIO5 |
-| Cathode (–) | GND |
-
----
-
-## Project structure
-
-A typical layout (your repo may differ slightly):
-
-
-Sender project folder similarly contains:
-- `main.cpp` (sender)
-- `wifi.cpp`
-- shared crypto + coap helpers
-
----
-## Run & Test ✅
-
-### 1) Flash both boards
-- Flash **Gateway firmware** to the Gateway PineCone
-- Flash **Sender firmware** to the Sender PineCone
-
-### 2) Power-on order (important)
-1. Power ON **Gateway** first  
-   - Wait until it connects to Wi-Fi and prints:
-     - `Listening on UDP port 5683`
-   - OLED should show something like:
-     - `Waiting...`
-2. Power ON **Sender**
-   - Sender will connect to Wi-Fi, discover the gateway via broadcast, fetch PK, then send the protected payload.
-
-### 3) Expected runtime behavior
-**Gateway**
-- Replies to PK request (`/pqkem-pk`)
-- Receives encrypted packet (`/pqkem-data`)
-- Decrypts it and shows plaintext on OLED
-- Blinks LED on success
-
-**Sender**
-- Broadcast discovery → receives gateway IP
-- Encapsulates KEM
-- Derives AES key via HKDF
-- Encrypts plaintext via AES-CCM
-- Sends packet to the gateway
-
-### 4) Add demo video (for GitHub)
-Create a folder:
-
-## Build & flash
-
-
+* [cite_start]**[1] Schmalkalden University of Applied Sciences**[cite: 1].
+* [cite_start]**[2] Corresponding Author et al.**, "Post Quantum Key Exchange Mechanisms for the IOT", *Internet of Things Projects 2025*[cite: 2, 3, 4].
+* [cite_start]**[3] NIST FIPS:** ML-KEM / Kyber Standards[cite: 46].
+* [cite_start]**[4] RFC 7252:** The Constrained Application Protocol (CoAP)[cite: 59].
+* [cite_start]**[5] RFC 9052:** CBOR Object Signing and Encryption (COSE)[cite: 63].
