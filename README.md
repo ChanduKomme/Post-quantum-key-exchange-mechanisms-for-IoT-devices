@@ -157,7 +157,7 @@ If ciphertext/tag/nonce is modified → gateway detects it as **AUTH FAIL**.
   - One as **Gateway**
 - 1 × Wi-Fi access point/router (same LAN)
 
-### Gateway extras (recommended)
+### Gateway extras 
 - SSD1306 OLED display (I2C)
 - External LED + resistor (for GPIO indication)
 
