@@ -20,7 +20,7 @@ The Post Quantum Key Exchange Mechanisms for the IOT  project was developed by f
 > Implementing post-quantum security now is critical to defend against **"Harvest Now, Decrypt Later"** attacks, ensuring that long-term IoT data remains secure even when quantum computing becomes available.
 ---
 
-## 📖 Abstract
+## Abstract
 
 *As the development of quantum computing, standard IoT security will become obsolete. The implementation in this project involves a **Post-quantum Key Exchange** that is specifically developed to work with resource-constrained IoT devices (PineCone BL602). We demonstrate a secure, modular, **Wi‑Fi/CoAP** communication channel by means of combining **ML-KEYM (Kyber)** to establish key and **AES-CCM** to encrypt and decrypt the key. This demonstration of concept shows that there are ways to protect even low-powered embedded devices against future quantum attacks even nowadays.*
 
@@ -67,14 +67,14 @@ Sniff the data packets from the sender and  gateway.
 
 
 
-## 🔑 Crypto Explanation
+## Crypto Explanation
 
 The system implements a hybrid cryptographic scheme designed for constrained nodes:
 
 * **Post-Quantum Key Establishment (ML-KEM):**
-    * The system uses **ML-KEM-512** (Kyber), a lattice-based mechanism standardized by NIST [10, 48].
+    * The system uses **ML-KEM-512** (Kyber), a lattice-based mechanism standardized by NIST .
     * It relies on the hardness of the Module-Learning with Errors (MLWE) problem [46].
-    * The Gateway holds a long-term key pair in flash memory, while the Sender encapsulates a secret using the Gateway's public key to create a shared secret [13, 56].
+    * The Gateway holds a long-term key pair in flash memory, while the Sender encapsulates a secret using the Gateway's public key to create a shared secret .
 * Key Derivation (HKDF):
     * The 32-byte shared secret from ML-KEM is passed through **HKDF-SHA-256** [58].
     * This derives a specific 128-bit symmetric key for the session [58].
@@ -85,27 +85,27 @@ The system implements a hybrid cryptographic scheme designed for constrained nod
  
 
 
-## 🛡️ Security Analysis
+##  Security Analysis
 
 * **Quantum Resistance:** By utilizing ML-KEM-512, the system protects against future quantum computing attacks that could break classical RSA or ECC .
 * **Confidentiality & Integrity:** The use of AES-CCM ensures that payloads are unreadable to eavesdroppers and that any tampering is detected via authentication tags .
 * **Forward Secrecy:** The protocol generates a unique session key for the transaction via the encapsulation process .
 * **Traffic Validation:** Network analysis using a dedicated Sniffer node and Wireshark confirms that payloads are encrypted and distinct from headers .
 
-## ⚠️ Limitations
+##  Limitations
 
 * **Payload Format:** The current prototype uses a custom payload structure rather than fully compliant CBOR/COSE encoding or OSCORE .
 * **Parameter Sets:** The implementation currently supports ML-KEM-512. It does not yet support larger parameter sets like ML-KEM-768 or ML-KEM-1024 .
 * **Hardware Constraints:** The solution is designed for the memory and energy constraints of small embedded devices (BL602), limiting the complexity of primitives .
 
-## 🏴‍☠️ Threat Model
+## Threat Model
 
 * **Harvest Now, Decrypt Later:** Addresses the threat of attackers capturing current encrypted traffic to decrypt it later when quantum technology matures .
 * **Replay Attacks:** The system employs freshness rules and checks for duplicates/unexpected messages to prevent replay attacks .
 * **Passive Eavesdropping:** Unauthorized entities listening on the Wi-Fi network see only encrypted blobs (ML-KEM ciphertexts and AES-CCM payloads) .
 ---
 
-## 🔐 Security Assumptions
+## Security Assumptions
 
 * **Trusted Gateway:** The Gateway is assumed to be a trusted root that securely stores the long-term ML-KEM private key in its internal flash memory .
 * **Physical Security:** It is assumed that the physical device (Gateway) maintains the keys in on-chip flash .
@@ -123,24 +123,24 @@ Performance benchmarks were conducted on the PineCone (BL602) hardware :
 
 ## Security features
 
-### ✅ Post-Quantum key exchange (ML-KEM)
+### Post-Quantum key exchange (ML-KEM)
 - Sender uses gateway public key to encapsulate → gets `(ct, shared_secret)`
 - Gateway decapsulates `(ct, secret_key)` → recovers `shared_secret`
 
-### ✅ Key derivation (HKDF-SHA256)
+### Key derivation (HKDF-SHA256)
 Both sides run:
 - `HKDF(shared_secret, info="ML-KEM-AEAD") → AES-128 key`
 
 This prevents using raw shared secret directly and cleanly scopes derived keys.
 
-### ✅ Authenticated encryption (AES-128-CCM)
+### Authenticated encryption (AES-128-CCM)
 AES-CCM provides:
 - Confidentiality (encryption)
 - Integrity (authentication tag)
 
 If ciphertext/tag/nonce is modified → gateway detects it as **AUTH FAIL**.
 
-### ✅ Tamper detection (Sender rate check) + Gateway auth monitoring
+### Tamper detection (Sender rate check) + Gateway auth monitoring
 - Sender has a simple timing-based “tamper” heuristic (too-fast send triggers flag)
 - Gateway detects tampering reliably by AES-CCM auth failure (tag mismatch)
 
@@ -181,7 +181,7 @@ Typical I2C wiring used in your codebase:
 | Anode (+) through resistor | GPIO5 |
 | Cathode (–) | GND |
 
-### 💡 Why It Matters Today
+### Why It Matters Today
 ---
 
 Organizations are already preparing for **Post-Quantum Cryptography (PQC) migration**. This project demonstrates how quantum-resistant security can be implemented on low-power microcontrollers like PineCone (BL602), making it highly relevant for companies planning secure IoT architectures for the next decade.
