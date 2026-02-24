@@ -104,69 +104,9 @@ The system implements a hybrid cryptographic scheme designed for constrained nod
 
 ## 🏴‍☠️ Threat Model
 
-## 1️⃣ Harvest Now, Decrypt Later (Post-Quantum Threat)
-
-**Threat:**  
-An attacker records encrypted network traffic today and stores it.  
-In the future, when large-scale quantum computers become available, the attacker attempts to decrypt the captured data.
-
-**Mitigation:**  
-- The system uses **ML-KEM (Post-Quantum Key Encapsulation Mechanism)**.
-- ML-KEM is resistant to known quantum attacks (e.g., Shor’s algorithm).
-- Even if traffic is captured today, it remains secure against future quantum decryption attempts.
-
-**Impact:**  
-Protects long-term confidentiality of IoT communications.
-
----
-
-## 2️⃣ Passive Eavesdropping (Wi-Fi Sniffing)
-
-**Threat:**  
-An attacker on the same Wi-Fi network captures packets using tools like Wireshark.
-
-**Mitigation:**  
-- All sensitive payloads are encrypted using **AES-128-CCM**.
-- Shared secret is established using ML-KEM.
-- HKDF ensures proper key derivation.
-- Observers see only:
-  - ML-KEM ciphertext blobs
-  - AES-CCM encrypted payloads
-  - Authentication tags
-
-**Impact:**  
-Captured traffic is computationally infeasible to decrypt.
-
-
-## 3️⃣  Message Tampering / Integrity Attacks
-
-**Threat:**  
-An attacker modifies ciphertext or injects malformed packets.
-
-**Mitigation:**  
-- AES-CCM provides authenticated encryption.
-- Any bit modification causes authentication failure.
-- Gateway rejects message immediately.
-- AUTH FAIL event triggered.
-
-**Impact:**  
-Guarantees message integrity and authenticity.
-
----
-
-## 4️⃣  Man-in-the-Middle (MITM) Manipulation
-
-**Threat:**  
-An attacker attempts to alter packets during transmission.
-
-**Mitigation:**  
-- Shared secret is derived via ML-KEM.
-- AES-CCM authentication ensures integrity.
-- Modified packets cannot pass authentication verification.
-
-**Impact:**  
-Active tampering attempts are detected and blocked.
-
+* **Harvest Now, Decrypt Later:** Addresses the threat of attackers capturing current encrypted traffic to decrypt it later when quantum technology matures .
+* **Replay Attacks:** The system employs freshness rules and checks for duplicates/unexpected messages to prevent replay attacks .
+* **Passive Eavesdropping:** Unauthorized entities listening on the Wi-Fi network see only encrypted blobs (ML-KEM ciphertexts and AES-CCM payloads) .
 ---
 
 ## 🔐 Security Assumptions
