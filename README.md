@@ -208,7 +208,8 @@ If ciphertext/tag/nonce is modified → gateway detects it as **AUTH FAIL**.
 - Sender has a simple timing-based “tamper” heuristic (too-fast send triggers flag)
 - Gateway detects tampering reliably by AES-CCM auth failure (tag mismatch)
 
-> Note: AES-CCM authentication failure is the real cryptographic tamper detection mechanism.
+> [!NOTE]
+>  AES-CCM authentication failure is the real cryptographic tamper detection mechanism.
 
 ---
 
