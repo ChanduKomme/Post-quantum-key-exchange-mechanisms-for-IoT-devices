@@ -8,7 +8,7 @@
 
 ## 🔗 Project Overview
 
-The "Post Quantum Key Exchange Mechanisms for the IOT"** project was developed by from Schmalkalden University of Applied Sciences.
+The Post Quantum Key Exchange Mechanisms for the IOT  project was developed by from Schmalkalden University of Applied Sciences.
 
 > [!NOTE]
 > This project leverages **Pine Cone BL602** microcontrollers to provide quantum-resistant key establishment using **ML-KEM-512 (Kyber)**, integrated with **AES-CCM** for secure, authenticated CoAP communication.
