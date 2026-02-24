@@ -4,7 +4,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Bouffalo_Lab_BL602-blue)](https://www.bouffalolab.com/)
 [![Crypto](https://img.shields.io/badge/Crypto-ML--KEM--512_%2B_AES--CCM-green)](https://csrc.nist.gov/projects/post-quantum-cryptography)
 [![PineCone](https://img.shields.io/badge/PineCone-Wiki-blue)](https://wiki.pine64.org/wiki/PineCone)
-[![SDK](https://img.shields.io/badge/SDK-Info-red)](https://pine64.github.io/bl602-docs/))
+[![SDK](https://img.shields.io/badge/SDK-Info-red)](https://pine64.github.io/bl602-docs/)
 
 ## 🔗 Project Overview
 
