@@ -44,6 +44,9 @@ The system implements a hybrid cryptographic scheme designed for constrained nod
     * Data is secured using AES-128-CCM (Counter with CBC-MAC) .
     * This provides both confidentiality (encryption) and integrity (authentication) in a single pass, suitable for low-power constraints .
     * Messages include nonce management to handle state transitions from handshake to secure data .
+ 
+## 🎥 Demonstration
+[Watch Demo](prototype/demo.mp4)
 
 ## 🛡️ Security Analysis
 
