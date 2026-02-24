@@ -1,95 +1,142 @@
-# Post-Quantum Key Exchange for IoT (BL602 Implementation) 🔐
+# Post-Quantum Key Exchange for IoT Devices(BL602 Implementation) 🔐
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-Bouffalo_Lab_BL602-blue)](https://www.bouffalolab.com/)
 [![Crypto](https://img.shields.io/badge/Crypto-ML--KEM--512_%2B_AES--CCM-green)](https://csrc.nist.gov/projects/post-quantum-cryptography)
+## 🔗 Project Overview
 
-> **A Proof-of-Concept for integrating NIST-standardized Post-Quantum Cryptography (ML-KEM/Kyber) into resource-constrained IoT devices.**
+The "Post Quantum Key Exchange Mechanisms for the IOT"** project was developed by from Schmalkalden University of Applied Sciences.
+
+> [!NOTE]
+> This project leverages **Pine Cone BL602** microcontrollers to provide quantum-resistant key establishment using **ML-KEM-512 (Kyber)**, integrated with **AES-CCM** for secure, authenticated CoAP communication.
+
+> [!TIP]
+> Equipped with Wi-Fi connectivity and a modular architecture, the system separates network setup from cryptographic logic, enabling a user-friendly implementation of secure end-to-end messaging on constrained embedded devices.
+
+> [!IMPORTANT]
+> Implementing post-quantum security now is critical to defend against **"Harvest Now, Decrypt Later"** attacks, ensuring that long-term IoT data remains secure even when quantum computing becomes available.
+---
 
 ## 📖 Abstract
-[cite_start]Innovations such as post-quantum cryptography have created new needs for secure connections between devices that will be part of a long-term ecosystem[cite: 5]. [cite_start]Currently, IoT devices rely on asymmetric cryptography that may be compromised by future quantum computers[cite: 6]. 
 
-[cite_start]This project implements a **Post-Quantum Key Agreement Protocol** for the IoT[cite: 8]. [cite_start]Using **Pine Cone BL602** microcontrollers, we demonstrate a secure connection where a Sender and Gateway establish a shared secret using **ML-KEM-512 (Kyber)** and protect data using **AES-128-CCM** over **CoAP/UDP**[cite: 9, 10, 11].
+Innovations such as post-quantum cryptography have created new needs for secure connections between devices that will be part of a long-term ecosystem . Currently, all existing Internet of Things (IoT) devices use asymmetric key-based cryptography, enabling an advanced level of security today but may possibly be compromised by quantum computers in the future . Therefore, all current secure communication channels with IoT devices will ultimately end with an encrypted and decrypted view of the data ever exchanged through them .
 
-## 🏗️ System Architecture
+The implementation and use of quantum resilient security in very small form-factor IoT devices are still being addressed because of the limitations imposed on these small embedded electronic devices, in terms of available RAM/memory, energy/battery life, bandwidth, etc . A post-quantum key agreement protocol for the IoT will be developed in this project to fill a continuing gap in this area . A pair of IoT devices (PineCone/BL602) will demonstrate a proof-of-concept by communicating across a local Wi-Fi network using CoAP as the application layer protocol .
 
-[cite_start]The system utilizes a modular architecture enabling independent operation of transport, key establishment, and data security functions[cite: 33].
+First, a post-quantum key establishment mechanism (KEM) from the Kyber family, designated as ML-KEM by NIST will establish a shared secret between the two nodes . This shared secret will subsequently be used in tandem with an encryption/authentication mechanism based on AES-CCM, providing confidentiality and integrity during CoAP communications . Instead of creating a variety of cryptographic primitives, the focus of the current project is to facilitate integration and to develop a user-friendly experience .
 
-### 1. Gateway Node (Server)
-* [cite_start]**Hardware:** Pine Cone BL602 with an OLED display (I2C)[cite: 88, 118].
-* [cite_start]**Role:** Maintains the long-term ML-KEM-512 key pair in internal flash memory[cite: 13].
-* [cite_start]**Function:** Listens for CoAP requests, performs KEM decapsulation, derives the session key via HKDF, and decrypts the AES-CCM payload[cite: 155].
-* [cite_start]**Output:** Displays decrypted plaintext on the OLED screen and flashes an LED upon successful authentication[cite: 93, 118].
+Wi-Fi/IP setup, CoAP communication, key establishment and AEAD encryption/authentication are all separated by implementation to make the protocol logic modular . The long-term post-quantum key pair will be maintained in the internal flash memory of the gateway node, while the sender will engage in the encapsulation of the secret key via a straight CoAP handshake over a secure channel, thus creating a session key . Thereafter, the messages are AEAD encapsulated with key nonce management . Also the states transitions from handshake to secure data .
 
-### 2. Sender Node (Client)
-* [cite_start]**Hardware:** Pine Cone BL602[cite: 9].
-* **Role:** Initiates secure communication.
-* [cite_start]**Function:** Retrieves the Gateway's public key via CoAP, encapsulates a shared secret (ML-KEM), derives the AES key, and transmits encrypted data[cite: 13, 136, 138].
+In order to verify that our protocol is functioning we also examined the traffic patterns using typical network analysis tools, e.g. Wireshark . In conclusion, this project provides a repeatable design methodology for developing a Quantum Resistant Key between a small CoAP-based device and an arbitrary other system . The project has involved a theoretical migration from a Concept design, then development of a Demonstration Prototype, then a Complete End-to-End Demonstration on a commercial IoT Board . This set of components can also be leveraged for other similar platforms .
 
-### 3. Sniffer Node (Passive Monitor)
-* [cite_start]**Hardware:** Pine Cone BL602 (Minimal configuration)[cite: 122].
-* **Role:** Network Traffic Analysis and Replay Detection.
-* [cite_start]**Function:** Operates in Wi-Fi Monitor Mode to capture IEEE 802.11 frames and stream them via UART to a host PC[cite: 124, 125].
-* [cite_start]**Analysis:** Allows traffic visualization in Wireshark to verify encryption and detect anomalies[cite: 15, 176].
+## 🔑 Crypto Explanation
 
-## 🔐 Cryptographic Stack
+The system implements a hybrid cryptographic scheme designed for constrained nodes:
 
-[cite_start]This project strictly adheres to the following hybrid scheme recommended for IoT constraints[cite: 8, 58]:
+* **Post-Quantum Key Establishment (ML-KEM):**
+    * The system uses **ML-KEM-512** (Kyber), a lattice-based mechanism standardized by NIST [10, 48].
+    * It relies on the hardness of the Module-Learning with Errors (MLWE) problem [46].
+    * The Gateway holds a long-term key pair in flash memory, while the Sender encapsulates a secret using the Gateway's public key to create a shared secret [13, 56].
+* Key Derivation (HKDF):
+    * The 32-byte shared secret from ML-KEM is passed through **HKDF-SHA-256** [58].
+    * This derives a specific 128-bit symmetric key for the session [58].
+* Authenticated Encryption (AES-CCM):
+    * Data is secured using AES-128-CCM (Counter with CBC-MAC) .
+    * This provides both confidentiality (encryption) and integrity (authentication) in a single pass, suitable for low-power constraints .
+    * Messages include nonce management to handle state transitions from handshake to secure data .
 
-1.  **Key Encapsulation Mechanism (KEM):**
-    * [cite_start]**Algorithm:** ML-KEM-512 (Kyber)[cite: 10, 48].
-    * [cite_start]**Level:** NIST Security Level 1 (comparable to AES-128)[cite: 48].
-    * [cite_start]**Parameters:** Ciphertext size 768 bytes, Shared Secret 32 bytes[cite: 49].
-2.  **Key Derivation Function (KDF):**
-    * [cite_start]**Algorithm:** HKDF-SHA-256[cite: 58].
-    * [cite_start]**Input:** Shared Secret (from KEM)[cite: 57].
-    * [cite_start]**Output:** 128-bit Symmetric Key[cite: 58].
-3.  **Authenticated Encryption (AEAD):**
-    * [cite_start]**Algorithm:** AES-128-CCM (Counter with CBC-MAC)[cite: 11, 65].
-    * [cite_start]**Role:** Provides confidentiality and integrity for CoAP payloads[cite: 65].
+## 🛡️ Security Analysis
 
-## ⚡ Performance Evaluation
+* **Quantum Resistance:** By utilizing ML-KEM-512, the system protects against future quantum computing attacks that could break classical RSA or ECC .
+* **Confidentiality & Integrity:** The use of AES-CCM ensures that payloads are unreadable to eavesdroppers and that any tampering is detected via authentication tags .
+* **Forward Secrecy:** The protocol generates a unique session key for the transaction via the encapsulation process .
+* **Traffic Validation:** Network analysis using a dedicated Sniffer node and Wireshark confirms that payloads are encrypted and distinct from headers .
 
-Benchmarks were measured on the BL602 (RISC-V) hardware:
+## ⚠️ Limitations
 
-| Operation | Time | Notes |
-| :--- | :--- | :--- |
-| **ML-KEM-512 Encapsulation** | ~11-12 ms | [cite_start]Sender Side [cite: 167] |
-| **ML-KEM-512 Decapsulation** | ~11-12 ms | [cite_start]Gateway Side [cite: 167] |
-| **AES-CCM Encrypt/Decrypt** | < 1 ms | [cite_start]Negligible overhead [cite: 168] |
+* **Payload Format:** The current prototype uses a custom payload structure rather than fully compliant CBOR/COSE encoding or OSCORE .
+* **Parameter Sets:** The implementation currently supports ML-KEM-512. It does not yet support larger parameter sets like ML-KEM-768 or ML-KEM-1024 .
+* **Hardware Constraints:** The solution is designed for the memory and energy constraints of small embedded devices (BL602), limiting the complexity of primitives .
 
-[cite_start]**Resource Usage:** Memory usage remains within the board's limits, with ciphertexts stored in static buffers and payloads in RAM[cite: 172, 173].
+## 🏴‍☠️ Threat Model
 
-## 🔌 Hardware & Wiring
+## 1️⃣ Harvest Now, Decrypt Later (Post-Quantum Threat)
 
-[cite_start]**Board:** 3x Pine Cone BL602 (Bouffalo Lab)[cite: 88].
+**Threat:**  
+An attacker records encrypted network traffic today and stores it.  
+In the future, when large-scale quantum computers become available, the attacker attempts to decrypt the captured data.
 
-| Peripheral | Connection | Role |
-| :--- | :--- | :--- |
-| **Status LED** | GPIO Pin | [cite_start]Blinks on successful decrypt/auth [cite: 93] |
-| **OLED Display** | I2C Interface | [cite_start]Displays decrypted plaintext on Gateway [cite: 118] |
-| **UART** | USB Serial | [cite_start]Debug logging and Sniffer stream [cite: 91, 125] |
+**Mitigation:**  
+- The system uses **ML-KEM (Post-Quantum Key Encapsulation Mechanism)**.
+- ML-KEM is resistant to known quantum attacks (e.g., Shor’s algorithm).
+- Even if traffic is captured today, it remains secure against future quantum decryption attempts.
 
-## 🚀 Usage Guide
+**Impact:**  
+Protects long-term confidentiality of IoT communications.
 
-### 1. Firmware Roles
-* [cite_start]**Gateway:** Initialize -> Connect Wi-Fi -> Load Keys -> Start CoAP Server[cite: 140, 154].
-* [cite_start]**Sender:** Initialize -> Connect Wi-Fi -> GET Public Key -> POST Encrypted Data[cite: 158, 159].
-* [cite_start]**Sniffer:** Initialize -> Set Monitor Mode -> Stream to UART[cite: 144, 145].
+---
 
-### 2. Operational Flow
-1.  [cite_start]**Boot Gateway:** It connects to the network via DHCP and waits for requests[cite: 157].
-2.  [cite_start]**Boot Sender:** It automatically discovers the Gateway and requests the Public Key (`/pqkem-pk`)[cite: 158].
-3.  [cite_start]**Handshake:** Sender encapsulates the key and sends the ciphertext + AES-encrypted payload (`/pqkem-data`)[cite: 159].
-4.  **Verification:**
-    * Gateway decrypts the message.
-    * [cite_start]**OLED** displays the plaintext[cite: 162].
-    * [cite_start]**LED** flashes green[cite: 163].
+## 2️⃣ Passive Eavesdropping (Wi-Fi Sniffing)
 
-## 📚 References
+**Threat:**  
+An attacker on the same Wi-Fi network captures packets using tools like Wireshark.
 
-* [cite_start]**[1] Schmalkalden University of Applied Sciences**[cite: 1].
-* [cite_start]**[2] Corresponding Author et al.**, "Post Quantum Key Exchange Mechanisms for the IOT", *Internet of Things Projects 2025*[cite: 2, 3, 4].
-* [cite_start]**[3] NIST FIPS:** ML-KEM / Kyber Standards[cite: 46].
-* [cite_start]**[4] RFC 7252:** The Constrained Application Protocol (CoAP)[cite: 59].
-* [cite_start]**[5] RFC 9052:** CBOR Object Signing and Encryption (COSE)[cite: 63].
+**Mitigation:**  
+- All sensitive payloads are encrypted using **AES-128-CCM**.
+- Shared secret is established using ML-KEM.
+- HKDF ensures proper key derivation.
+- Observers see only:
+  - ML-KEM ciphertext blobs
+  - AES-CCM encrypted payloads
+  - Authentication tags
+
+**Impact:**  
+Captured traffic is computationally infeasible to decrypt.
+
+
+## 3️⃣  Message Tampering / Integrity Attacks
+
+**Threat:**  
+An attacker modifies ciphertext or injects malformed packets.
+
+**Mitigation:**  
+- AES-CCM provides authenticated encryption.
+- Any bit modification causes authentication failure.
+- Gateway rejects message immediately.
+- AUTH FAIL event triggered.
+
+**Impact:**  
+Guarantees message integrity and authenticity.
+
+---
+
+## 4️⃣  Man-in-the-Middle (MITM) Manipulation
+
+**Threat:**  
+An attacker attempts to alter packets during transmission.
+
+**Mitigation:**  
+- Shared secret is derived via ML-KEM.
+- AES-CCM authentication ensures integrity.
+- Modified packets cannot pass authentication verification.
+
+**Impact:**  
+Active tampering attempts are detected and blocked.
+
+---
+
+## 🔐 Security Assumptions
+
+* **Trusted Gateway:** The Gateway is assumed to be a trusted root that securely stores the long-term ML-KEM private key in its internal flash memory .
+* **Physical Security:** It is assumed that the physical device (Gateway) maintains the keys in on-chip flash .
+* **CoAP Reliability:** The system assumes CoAP over UDP is sufficient for transport, utilizing application-layer reliability where necessary .
+
+## ⚡ Performance Measurements
+
+Performance benchmarks were conducted on the PineCone (BL602) hardware :
+
+* ML-KEM-512 Decapsulation: 11–12 ms (Gateway side) .
+* ML-KEM-512 Encapsulation: 11–12 ms (Sender side) .
+* AES-CCM Encryption/Decryption: < 1 ms (effectively below timer resolution) .
+* Latency Impact: The post-quantum handshake introduces a marginal delay (~10-20ms) compared to typical network latency .
+* Resource Usage: Code size and RAM utilization remain within the limits of the microcontroller .
