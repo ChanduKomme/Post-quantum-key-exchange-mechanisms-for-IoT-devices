@@ -181,3 +181,8 @@ Typical I2C wiring used in your codebase:
 | Anode (+) through resistor | GPIO5 |
 | Cathode (–) | GND |
 
+### 💡 Why It Matters Today
+---
+
+Organizations are already preparing for **Post-Quantum Cryptography (PQC) migration**. This project demonstrates how quantum-resistant security can be implemented on low-power microcontrollers like PineCone (BL602), making it highly relevant for companies planning secure IoT architectures for the next decade.
+
