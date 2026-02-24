@@ -60,7 +60,7 @@ Sniff the data packets from the sender and  gateway.
 <img width="1843" height="861" alt="Screenshot from 2026-02-24 02-35-17" src="https://github.com/user-attachments/assets/5744068b-43db-4e02-9639-ece3fc5effd7" />
 
 ## 🎥 Demonstration
-[Watch full demo of project with MIMT and tamper attacks](Prototype)
+[Watch full demo of project with MIMT and tamper attacks](Prototype/demo.mp4)
 
 > [!Note]
 > Click View Raw to access videos
