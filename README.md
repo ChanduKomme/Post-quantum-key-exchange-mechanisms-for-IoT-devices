@@ -1,4 +1,4 @@
-# Post-Quantum Key Exchange for IoT Devices(BL602 Implementation) 🔐
+# Post-Quantum Key Exchange for IoT Devices 🔐
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-Bouffalo_Lab_BL602-blue)](https://www.bouffalolab.com/)
