@@ -121,6 +121,74 @@ Performance benchmarks were conducted on the PineCone (BL602) hardware :
 * Latency Impact: The post-quantum handshake introduces a marginal delay (~10-20ms) compared to typical network latency .
 * Resource Usage: Code size and RAM utilization remain within the limits of the microcontroller .
 
+# 🔐 Security Evaluation & Attack Results
+
+This section documents the controlled security testing performed on the  
+**BL602 ML-KEM + AES-CCM Secure CoAP Communication System**.
+
+All attacks were performed in a **controlled lab environment** on devices owned by the author.
+# 1️⃣ Passive Sniffing Attack
+
+## Objective
+Determine whether an attacker can read the transmitted message.
+
+## Method
+- Performed ARP spoofing using Bettercap.
+- Captured traffic using Wireshark.
+- Applied filter:
+
+  **ARP Poisoning**
+<img width="787" height="573" alt="Screenshot from 2026-02-27 01-24-05" src="https://github.com/user-attachments/assets/1e7450a3-d933-4040-9661-8b144ec5e03c" />
+  **SNIFFED PACKET**
+<img width="799" height="410" alt="Screenshot from 2026-02-27 01-35-15" src="https://github.com/user-attachments/assets/3b307be7-5a4d-4f19-80b1-662a65db188c" />
+
+## Result
+
+✅ Attacker sees CoAP packets  
+❌ Attacker cannot read plaintext  
+🔒 Payload is encrypted ciphertext  
+
+---
+
+# 2️⃣ Tampering Attack (Bit Flip Injection)
+
+## Objective
+Check if modifying encrypted packets affects integrity protection.
+
+## Method
+- Attacker flipped 1 bit in ciphertext.
+- Forwarded modified packet to gateway.
+
+**AFTER TAMMPER ATTACK**
+<img width="2129" height="889" alt="Screenshot from 2026-02-27 01-39-56" src="https://github.com/user-attachments/assets/16090328-14b2-497d-9e8e-7f8416bb6a9a" />
+
+## Conclusion
+AES-CCM detected modification via authentication tag verification.
+Integrity protection is working correctly.
+---
+# 4️⃣ Security Properties Verified
+
+| Attack Type | Protected? | Mechanism |
+|-------------|------------|------------|
+| Packet Sniffing | ✅ Yes | ML-KEM + AES-CCM Encryption |
+| Packet Tampering | ✅ Yes | AEAD Authentication Tag |
+| Replay Attack | ✅ Yes | Nonce Cache Validation |
+| MITM Positioning | ✅ Yes | Cryptographic Integrity |
+
+# 🔐 Why This System Is Secure
+
+1. ML-KEM-512 provides post-quantum key exchange.
+2. Shared secret derived via HKDF-SHA256.
+3. AES-CCM ensures confidentiality + integrity.
+4. Nonce tracking prevents replay.
+5. Tampering automatically invalidates authentication tag.
+---
+# ⚠️ Important Notes
+
+- ARP spoofing does NOT break cryptography.
+- Attacker can observe traffic but cannot decrypt or modify it successfully.
+- Security depends on proper nonce management.
+- 
 ## Security features
 
 ### Post-Quantum key exchange (ML-KEM)
