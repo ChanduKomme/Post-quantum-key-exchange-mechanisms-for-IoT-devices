@@ -127,7 +127,7 @@ This section documents the controlled security testing performed on the
 **BL602 ML-KEM + AES-CCM Secure CoAP Communication System**.
 
 All attacks were performed in a **controlled lab environment** on devices owned by the author.
-## 1️⃣ Passive Sniffing Attack
+## Passive Sniffing Attack
 
 ## Objective
 Determine whether an attacker can read the transmitted message.
