@@ -1,7 +1,7 @@
 #include "coap_minimal.h"
 #include <string.h>
 
-#define COAP_HEADER_LEN 4
+#define COAP_HEADER_LEN 4   
 
 /* Parse a CoAP message from raw UDP payload.
  * Fills CoapMessage, including uri_path (null-terminated) and payload pointer.
