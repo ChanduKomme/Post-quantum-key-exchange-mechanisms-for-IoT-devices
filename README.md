@@ -177,7 +177,6 @@ Check if modifying encrypted packets affects integrity protection.
 |-------------|------------|------------|
 | Packet Sniffing | Yes | ML-KEM + AES-CCM Encryption |
 | Packet Tampering |  Yes | AEAD Authentication Tag |
-| Replay Attack | Yes | Nonce Cache Validation |
 | MITM Positioning |  Yes | Cryptographic Integrity |
 
 ##  Why This System Is Secure
