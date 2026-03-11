@@ -138,7 +138,8 @@ Determine whether an attacker can read the transmitted message.
 - Applied filter:
 **ARP Poisoning**
   
-<img width="787" height="573" alt="Screenshot from 2026-02-27 01-24-05" src="https://github.com/user-attachments/assets/1e7450a3-d933-4040-9661-8b144ec5e03c" />
+![Arp spoffing](https://github.com/user-attachments/assets/6373543a-a3e2-4c28-9224-bbdb0edce284)
+
 
 **SNIFFED PACKET**
 
