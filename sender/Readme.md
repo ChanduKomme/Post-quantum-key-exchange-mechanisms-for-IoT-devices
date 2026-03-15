@@ -252,3 +252,5 @@ Typical serial log output:
 - The protected payload uses **AES-CCM** for confidentiality and integrity
 - Network headers remain visible even though the message payload is encrypted
 
+
+
