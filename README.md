@@ -88,7 +88,8 @@ This repository contains the complete prototype.
 ![Prototype](Prototype/System_Output/system_output.jpg)
 
 ***Data packets captured in monitor mode***
-![Prototype](Prototype/System_Output/Data_packets(monitor_mode).jpg)
+
+![Prototype](Prototype/System_Output/Data_packets(Monitormode).jpg)
 
 ---
 ## Prototype
