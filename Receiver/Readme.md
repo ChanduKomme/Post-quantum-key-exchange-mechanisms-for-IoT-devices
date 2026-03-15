@@ -49,30 +49,7 @@ The receiver:
 - GPIO5 LED indication for success and failure
 - Serial log output for debugging and verification
 
-## Project Structure
-```text
-Receiver/
-├── Makefile
-├── genromap
-├── proj_config.mk
-└── Receiver/
-    ├── bouffalo.mk
-    ├── main.cpp
-    ├── wifi.cpp
-    ├── coap_minimal.c
-    ├── pqkem_kem.c
-    ├── ssd1306.c
-    ├── i2c.c
-    ├── ble_lib_api.c
-    ├── include/
-    │   ├── wifi.h
-    │   ├── pqkem_kem.h
-    │   ├── coap_minimal.h
-    │   ├── suas_i2c.h
-    │   ├── suas_ssd1306.h
-    │   └── suas_ssd1306_font.h
-    └── kyber/
-        └── kyber512_ref/
+
 ```
 
 ## Requirements
