@@ -210,7 +210,7 @@ This repository includes assets from controlled lab testing of the system.
 **Arp-table**
 ---
 
-![ARP Table](Prototype/Attacks/Arp%20spoofing/ARP%20table.jpeg)
+![ARP Table](Prototype/Attacks/Arp%20spoofing/ARP%20table.jpg)
 
 **Captured packets(Attacker)**
 ---
