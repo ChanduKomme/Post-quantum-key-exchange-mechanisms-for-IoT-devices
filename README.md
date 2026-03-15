@@ -366,6 +366,7 @@ The repository already demonstrates the core system, but the code and report als
 - add authenticated public-key distribution using **certificates**, **signatures**, or **key pinning**
 - extend the sniffer tooling for anomaly detection and richer packet analysis
 
+---
 ### Why It Matters Today
 
 Organizations are already preparing for **Post-Quantum Cryptography (PQC)** migration. This project demonstrates that quantum-resistant communication can be implemented on low-power microcontrollers like **PineCone / BL602**, making it relevant for future long-lived IoT deployments where data captured today must remain secure tomorrow.
