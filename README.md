@@ -320,6 +320,52 @@ If ciphertext, nonce, or tag is changed, the Gateway reports **AUTH FAIL**.
 
 ---
 
+## Build and Flash the Firmware
+
+The sender, gateway/receiver, and sniffer are separate BL602 SDK projects. Install the BL60X/BL602 toolchain, activate the Python environment required by the SDK, and make sure `make`, `blflash`, and a serial terminal are available. All three project Makefiles require `BL60X_SDK_PATH` and include the SDK's RISC-V project build rules.
+
+Set the SDK path to your local BL602 SDK checkout:
+
+```bash
+export BL60X_SDK_PATH=/path/to/bl_iot_sdk
+```
+
+### Configure Wi-Fi on each board
+
+Set the network values in each firmware project's own header:
+
+| Board role | Configuration file |
+| --- | --- |
+| Sender | `sender/sender/include/wifi.h` |
+| Gateway / Receiver | `Receiver/Receiver/include/wifi.h` |
+| Sniffer | `sniffer/sniffer/include/wifi.h` |
+
+The sender and receiver must connect to the same access point. The sniffer has its own Wi-Fi configuration and also connects to the configured network before its capture task becomes ready.
+
+> [!WARNING]
+> The tracked sniffer Wi-Fi header currently contains a hard-coded credential. Treat that credential as exposed: rotate it before further use, replace it locally with your own network values, and do not commit real credentials. The sender and receiver headers contain placeholders, but they must also be configured locally before building.
+
+### Build each firmware
+
+Run these commands from the repository root, with `BL60X_SDK_PATH` set:
+
+```bash
+(cd sender && ./genromap)
+(cd Receiver && ./genromap)
+(cd sniffer && ./genromap)
+```
+
+Each `genromap` script invokes the BL602 SDK build system. The sniffer Makefile enables the Wi-Fi driver's sniffer build flag. For the board-specific flashing mode, serial settings, and sender/receiver binary names, follow the detailed guides:
+
+- [Sender firmware build and flashing guide](sender/Readme.md)
+- [Gateway / receiver firmware build and flashing guide](Receiver/Readme.md)
+
+### Sniffer host-side capture note
+
+The sniffer firmware tells the operator to run `tools/monitor/monitor.py` on the host and capture the `/tmp/sniff` interface in Wireshark. That referenced script is not present in this repository's current default-branch tree, so the host-side monitor tool must be supplied separately before this capture workflow can run as described.
+
+---
+
 ## Wiring
 
 ### SSD1306 OLED → PineCone (Gateway)
